@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GlobeTrotter Dashboard</title>
+
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    />
+
+    <style>
+      /* ===== Base ===== */
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Arial, sans-serif;
+        background: linear-gradient(180deg, #0b1220, #020617);
+        color: #e5e7eb;
+      }
+
+      a {
+        text-decoration: none;
+        color: inherit;
+      }
+
+      /* ===== Navbar ===== */
+      .navbar {
+        height: 60px;
+        background: #020617;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 20px;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        border-bottom: 1px solid #1e293b;
+      }
+
+      .navbar-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 18px;
+        font-weight: 600;
+      }
+
+      .navbar-left img {
+        height: 36px;
+        width: 36px;
+        border-radius: 8px;
+      }
+
+      .navbar-left i {
+        cursor: pointer;
+      }
+
+      .navbar-right i,
+      .navbar-right button {
+        font-size: 24px;
+        cursor: pointer;
+      }
+
+      .navbar-right button {
+        background: #2563eb;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 8px;
+        color: #fff;
+        font-size: 0.9rem;
+      }
+
+      /* ===== Sidebar ===== */
+      .sidebar {
+        position: fixed;
+        top: 60px;
+        left: -240px;
+        width: 240px;
+        height: calc(100vh - 60px);
+        background: #020617;
+        padding: 15px;
+        transition: 0.3s;
+        z-index: 999;
+      }
+
+      .sidebar a {
+        color: #cbd5f5;
+        text-decoration: none;
+        padding: 12px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 6px;
+        transition: 0.3s;
+      }
+
+      .sidebar a:hover,
+      .sidebar a.active {
+        background: #1e293b;
+        color: #57e1ee;
+      }
+
+      /* ===== Container ===== */
+      .container {
+        max-width: 1100px;
+        margin: 100px auto 40px;
+        padding: 24px;
+      }
+
+      /* ===== Header ===== */
+      .header h1 {
+        font-size: 2rem;
+        margin-bottom: 6px;
+      }
+
+      .countdown {
+        color: #60a5fa;
+      }
+
+      /* ===== Actions ===== */
+      .actions {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 20px;
+        margin-bottom: 40px;
+      }
+
+      .action-card {
+        background: #1f2937;
+        padding: 24px;
+        border-radius: 14px;
+        text-align: center;
+        cursor: pointer;
+        transition: 0.25s;
+      }
+
+      .action-card:hover {
+        background: #2563eb;
+        transform: translateY(-4px);
+      }
+
+      /* ===== Cards ===== */
+      .card {
+        background: #1f2937;
+        border-radius: 14px;
+        padding: 24px;
+        margin-bottom: 30px;
+      }
+
+      .trip-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 12px;
+      }
+
+      /* ===== Budget ===== */
+      .budget-bar {
+        background: #020617;
+        height: 10px;
+        border-radius: 999px;
+        overflow: hidden;
+        margin: 6px 0;
+      }
+
+      .budget-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #2563eb, #3b82f6);
+        width: 0%;
+        transition: width 1.2s ease;
+      }
+
+      /* ===== Destinations ===== */
+      .destinations {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 20px;
+      }
+
+      .destination-card {
+        background: #1f2937;
+        border-radius: 14px;
+        overflow: hidden;
+        cursor: pointer;
+        transition: 0.25s;
+      }
+
+      .destination-card img {
+        width: 100%;
+        height: 140px;
+        object-fit: cover;
+      }
+
+      .destination-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+      }
+
+      .destination-title {
+        padding: 14px;
+        font-weight: 500;
+      }
+
+      /* ===== Responsive ===== */
+      @media (max-width: 768px) {
+        .header h1 {
+          font-size: 1.5rem;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="navbar">
+      <div class="navbar-left">
+        <i class="fa fa-bars" onclick="toggleSidebar()"></i>
+        <img src="logo.jpeg" alt="Logo" />
+        <span>GlobeTrotter</span>
+      </div>
+      <div class="navbar-right">
+        <a href="profile.html"><i class="fa fa-user-circle"></i></a>
+      </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar" id="sidebar">
+      <a href="dashboard.html"><i class="fa fa-home"></i> Dashboard</a>
+      <a href="create-trip.html"><i class="fa fa-plus"></i> Create Trips</a>
+      <a href="my-trips.html"><i class="fa fa-suitcase"></i> My Trips</a>
+      <a href="public_itineraryview.html"
+        ><i class="fa fa-route"></i> public Itinerary
+      </a>
+      <a href="trip_calendar.html"
+        ><i class="fa fa-calendar"></i> Trip Calendar</a
+      >
+      <a href="budget.html"><i class="fa fa-wallet"></i> Budget</a>
+      <a href="login.html"><i class="fa fa-right-from-bracket"></i> Logout</a>
+    </div>
+
+    <!-- Content -->
+    <div class="container">
+      <div class="header">
+        <h1>Welcome back, Traveler!</h1>
+        <div class="countdown" id="countdown">Next Trip in ...</div>
+      </div>
+
+      <div class="actions">
+        <div class="action-card">Plan New Trip</div>
+        <div class="action-card">View Budgets</div>
+        <div class="action-card">Explore Cities</div>
+      </div>
+
+      <div class="card">
+        <h2>Next Trip: Paris Getaway</h2>
+        <div class="trip-details">
+          <div>📅 June 10 – June 20</div>
+          <div>📍 Paris, France</div>
+          <div>✅ Booked</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Budget Highlights</h2>
+        <strong>Paris Trip</strong>
+        <div class="budget-bar">
+          <div class="budget-fill" data-fill="70"></div>
+        </div>
+        <small>$700 / $1000</small>
+      </div>
+
+      <h2>Popular Destinations</h2>
+      <div class="destinations">
+        <div class="destination-card">
+          <img src="https://source.unsplash.com/300x200/?bali" />
+          <div class="destination-title">Bali, Indonesia</div>
+        </div>
+        <div class="destination-card">
+          <img src="https://source.unsplash.com/300x200/?paris" />
+          <div class="destination-title">Paris, France</div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function toggleSidebar() {
+        const sidebar = document.getElementById("sidebar");
+        sidebar.style.left = sidebar.style.left === "0px" ? "-240px" : "0px";
+      }
+
+      /* Budget animation */
+      document.querySelectorAll(".budget-fill").forEach((fill) => {
+        setTimeout(() => {
+          fill.style.width = fill.dataset.fill + "%";
+        }, 200);
+      });
+
+      /* Countdown */
+      const countdownEl = document.getElementById("countdown");
+      const tripDate = new Date("2026-06-10");
+
+      function updateCountdown() {
+        const diff = tripDate - new Date();
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        countdownEl.textContent = `Next Trip in ${days} days`;
+      }
+
+      updateCountdown();
+    </script>
+  </body>
+</html>

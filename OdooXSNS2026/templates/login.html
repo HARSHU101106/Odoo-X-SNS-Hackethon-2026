@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>GlobeTrotter | Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- 🔹 INTERNAL CSS -->
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", sans-serif;
+      }
+
+      body {
+        background: #0f172a;
+        color: #e5e7eb;
+      }
+
+      /* NAVBAR */
+      .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 40px;
+        background: #020617;
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 22px;
+        font-weight: bold;
+      }
+
+      .nav-links {
+        list-style: none;
+        display: flex;
+        gap: 20px;
+      }
+
+      .nav-links a {
+        color: #cbd5f5;
+        text-decoration: none;
+        padding: 6px 12px;
+        border-radius: 6px;
+      }
+
+      .nav-links a:hover,
+      .nav-links .active {
+        background: #1e293b;
+        color: #fff;
+      }
+
+      /* LOGIN CONTAINER */
+      .login-container {
+        max-width: 420px;
+        margin: 80px auto;
+        background: #020617;
+        padding: 35px;
+        border-radius: 14px;
+        border: 1px solid #1e293b;
+      }
+
+      .login-container h2 {
+        text-align: center;
+        margin-bottom: 25px;
+      }
+
+      .form-group {
+        margin-bottom: 18px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 6px;
+        color: #cbd5f5;
+      }
+
+      input {
+        width: 100%;
+        padding: 10px;
+        border-radius: 6px;
+        border: none;
+        outline: none;
+        background: #1e293b;
+        color: #fff;
+      }
+
+      input::placeholder {
+        color: #94a3b8;
+      }
+
+      /* BUTTON */
+      .login-btn {
+        width: 100%;
+        margin-top: 10px;
+        padding: 10px;
+        border: none;
+        border-radius: 6px;
+        background: #6366f1;
+        color: #fff;
+        font-size: 16px;
+        cursor: pointer;
+      }
+
+      .login-btn:hover {
+        background: #4f46e5;
+      }
+
+      /* LINKS */
+      .login-links {
+        margin-top: 20px;
+        text-align: center;
+      }
+
+      .login-links a {
+        display: block;
+        color: #0ea5e9;
+        text-decoration: none;
+        margin-top: 8px;
+        font-size: 14px;
+      }
+
+      .login-links a:hover {
+        text-decoration: underline;
+      }
+
+      /* RESPONSIVE */
+      @media (max-width: 600px) {
+        .navbar {
+          flex-direction: column;
+          gap: 10px;
+        }
+
+        .login-container {
+          margin: 50px 16px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- 🔹 NAVBAR -->
+    <nav class="navbar">
+      <div class="logo">
+        <img
+          src="{{ url_for('static', filename='logo.jpeg') }}"
+          height="60"
+          width="60"
+          alt="Logo"
+        />
+        <span>GlobeTrotters</span>
+      </div>
+
+      <ul class="nav-links">
+        <li><a href="/login" class="active">Login</a></li>
+        <li><a href="/signup">Sign Up</a></li>
+      </ul>
+    </nav>
+
+    <!-- 🔹 LOGIN FORM -->
+    <div class="login-container">
+      <h2>Welcome Back 🌍</h2>
+
+      <form action="/login" method="post">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            placeholder="Enter your email"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            placeholder="Enter your password"
+            required
+          />
+        </div>
+
+        <button type="submit" class="login-btn">Login</button>
+
+        <div class="login-links">
+          <a href="/forgot-password">Forgot Password?</a>
+          <a href="/signup">New user? Create an account</a>
+        </div>
+      </form>
+    </div>
+  </body>
+</html>
