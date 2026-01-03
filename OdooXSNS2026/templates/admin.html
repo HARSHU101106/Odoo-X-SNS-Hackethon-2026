@@ -1,137 +1,193 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GlobeTrotters Signup</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            background: #0f172a;
-            color: #e5e7eb;
-            font-family: Arial, sans-serif;
-            margin: 0;
-        }
+<meta charset="UTF-8">
+<title>Admin Panel – Travel Management</title>
 
-        header {
-            padding: 10px 20px;
-            background-color: #020617;
-            color: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            border-bottom-left-radius: 15px;
-            border-bottom-right-radius: 15px;
-        }
-
-        header img {
-            border-radius: 50%;
-        }
-
-        header h1 {
-            margin: 0;
-        }
-
-        .signup-container {
-            max-width: 450px;
-            margin: 50px auto;
-            background-color: rgba(0,0,0,0.6);
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-        }
-
-        .signup-container h2 {
-            text-align: center;
-            margin-bottom: 25px;
-        }
-
-        .signup-container input.form-control {
-            background-color: rgba(255,255,255,0.1);
-            border: none;
-            color: #fff;
-        }
-
-        .signup-container input.form-control::placeholder {
-            color: #d1d5db;
-        }
-
-        .signup-container a {
-            color: #fff;
-            text-decoration: underline;
-        }
-
-        .signup-container a:hover {
-            color: #ddd;
-        }
-    </style>
+<style>
+*{box-sizing:border-box;font-family:Segoe UI,sans-serif}
+body{
+    margin:0;
+    background:#0f172a;
+    color:#e5e7eb;
+    padding:30px;
+}
+.container{
+    display:grid;
+    grid-template-columns:300px 1fr;
+    gap:24px;
+}
+.card{
+    background:#1e293b;
+    padding:20px;
+    border-radius:14px;
+}
+h2,h3{margin-top:0;color:#38bdf8}
+input,select,button{
+    width:100%;
+    padding:10px;
+    margin:6px 0;
+    border-radius:8px;
+    border:none;
+}
+button{
+    background:#2563eb;
+    color:white;
+    cursor:pointer;
+}
+button:hover{background:#1d4ed8}
+.list{
+    margin-top:10px;
+    font-size:14px;
+}
+.trip{
+    background:#020617;
+    padding:12px;
+    border-radius:10px;
+    margin-bottom:10px;
+}
+.trip span{display:block;font-size:13px}
+.actions button{
+    width:auto;
+    padding:5px 10px;
+    margin-right:6px;
+    font-size:12px;
+}
+.delete{background:#ef4444}
+.view{background:#22c55e}
+.edit{background:#eab308}
+</style>
 </head>
+
 <body>
 
-<!-- Header -->
-<header>
-    <div class="d-flex align-items-center">
-        <img src="{{ url_for('static', filename='logo.jpeg') }}" height="80" width="80" alt="Logo">
-        <h1 class="ms-3">GlobeTrotters</h1>
-    </div>
-    <div class="d-flex gap-2">
-        <a href="/login" class="btn btn-outline-light">Login</a>
-    </div>
-</header>
+<h1>🌍 Admin Travel Dashboard</h1>
 
-<!-- Flash Messages -->
-<div class="container mt-3">
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
+<div class="container">
+
+<!-- ADMIN CONTROLS -->
+<div class="card">
+
+<h3>Add City</h3>
+<input id="cityInput" placeholder="City Name">
+<button onclick="addCity()">Add City</button>
+
+<h3>Add Activity</h3>
+<select id="citySelect"></select>
+<input id="activityInput" placeholder="Activity Name">
+<button onclick="addActivity()">Add Activity</button>
+
+<h3>Add User Trip</h3>
+<input id="userName" placeholder="User Name">
+<select id="tripCity"></select>
+<select id="tripActivity"></select>
+<button onclick="addTrip()">Add Trip</button>
+
 </div>
 
-<!-- Signup Form -->
-<div class="signup-container">
-    <h2>Create Account</h2>
-    <form action="/signup" method="post" class="d-flex flex-column gap-3">
-        <div>
-            <label for="name" class="form-label"><b>Name:</b></label>
-            <input type="text" class="form-control" id="name" placeholder="Enter your name" name="name" required>
-        </div>
+<!-- DATA VIEW -->
+<div class="card">
 
-        <div>
-            <label for="email" class="form-label"><b>Email:</b></label>
-            <input type="email" class="form-control" id="email" placeholder="Enter your email" name="email" required>
-        </div>
+<h3>Search & Manage Trips</h3>
+<input id="search" placeholder="Search by user / city / activity" onkeyup="searchTrips()">
 
-        <div>
-            <label for="password" class="form-label"><b>Password:</b></label>
-            <input type="password" class="form-control" id="password" placeholder="Enter your password" name="password" required>
-        </div>
+<div id="tripList"></div>
 
-        <div>
-            <label for="city" class="form-label"><b>City:</b></label>
-            <input type="text" class="form-control" id="city" placeholder="Enter your city" name="city" required>
-        </div>
-
-        <div>
-            <label for="country" class="form-label"><b>Country:</b></label>
-            <input type="text" class="form-control" id="country" placeholder="Enter your country" name="country" required>
-        </div>
-
-        <div>
-            <label for="phone_no" class="form-label"><b>Phone Number:</b></label>
-            <input type="text" class="form-control" id="phone_no" placeholder="Enter your phone number" name="phone_no" required>
-        </div>
-
-        <button type="submit" class="btn btn-primary mt-2">Sign Up</button>
-    </form>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</div>
+
+<script>
+/* DATA */
+let cities=[];
+let activities={};
+let trips=[];
+
+/* ADD CITY */
+function addCity(){
+    let c=cityInput.value.trim();
+    if(!c||cities.includes(c)) return;
+    cities.push(c);
+    activities[c]=[];
+    cityInput.value="";
+    renderCityDropdowns();
+}
+
+/* ADD ACTIVITY */
+function addActivity(){
+    let city=citySelect.value;
+    let act=activityInput.value.trim();
+    if(!city||!act||activities[city].includes(act)) return;
+    activities[city].push(act);
+    activityInput.value="";
+    renderActivityDropdown();
+}
+
+/* ADD USER TRIP */
+function addTrip(){
+    if(!userName.value||!tripCity.value||!tripActivity.value) return;
+
+    trips.push({
+        user:userName.value,
+        city:tripCity.value,
+        activity:tripActivity.value
+    });
+    userName.value="";
+    renderTrips(trips);
+}
+
+/* RENDER DROPDOWNS */
+function renderCityDropdowns(){
+    citySelect.innerHTML=tripCity.innerHTML="<option value=''>Select City</option>";
+    cities.forEach(c=>{
+        citySelect.innerHTML+=`<option>${c}</option>`;
+        tripCity.innerHTML+=`<option>${c}</option>`;
+    });
+}
+
+function renderActivityDropdown(){
+    tripActivity.innerHTML="<option value=''>Select Activity</option>";
+    let city=tripCity.value;
+    if(!city) return;
+    activities[city].forEach(a=>{
+        tripActivity.innerHTML+=`<option>${a}</option>`;
+    });
+}
+tripCity.onchange=renderActivityDropdown;
+
+/* RENDER TRIPS */
+function renderTrips(data){
+    tripList.innerHTML="";
+    data.forEach((t,i)=>{
+        tripList.innerHTML+=`
+        <div class="trip">
+            <strong>${t.user}</strong>
+            <span>City: ${t.city}</span>
+            <span>Activity: ${t.activity}</span>
+            <div class="actions">
+                <button class="delete" onclick="deleteTrip(${i})">Delete</button>
+            </div>
+        </div>`;
+    });
+}
+
+/* SEARCH */
+function searchTrips(){
+    let q=search.value.toLowerCase();
+    let filtered=trips.filter(t=>
+        t.user.toLowerCase().includes(q) ||
+        t.city.toLowerCase().includes(q) ||
+        t.activity.toLowerCase().includes(q)
+    );
+    renderTrips(filtered);
+}
+
+/* DELETE */
+function deleteTrip(i){
+    trips.splice(i,1);
+    renderTrips(trips);
+}
+</script>
+
 </body>
 </html>
