@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Trip Budget & Cost Breakdown</title>
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    background: linear-gradient(135deg, #0f172a, #020617);
+    color: #e5e7eb;
+    font-family: "Segoe UI", sans-serif;
+}
+
+.container {
+    max-width: 1050px;
+    margin: 40px auto;
+    padding: 20px;
+}
+
+/* HEADER */
+.header {
+    text-align: center;
+    margin-bottom: 35px;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 28px;
+}
+
+.header p {
+    margin-top: 8px;
+    color: #94a3b8;
+    font-size: 14px;
+}
+
+/* TOP CONTROLS */
+.controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: space-between;
+    margin-bottom: 30px;
+}
+
+.controls input {
+    flex: 1;
+    min-width: 240px;
+    padding: 12px;
+    background: #020617;
+    border: 1px solid #334155;
+    border-radius: 10px;
+    color: white;
+}
+
+.controls button {
+    padding: 12px 18px;
+    background: #6366f1;
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* DAY CARD */
+.day {
+    background: #020617;
+    border: 1px solid #1e293b;
+    border-radius: 18px;
+    padding: 22px;
+    margin-bottom: 24px;
+    transition: transform 0.2s;
+}
+
+.day:hover {
+    transform: translateY(-2px);
+}
+
+.day-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 18px;
+}
+
+/* INPUT GRID */
+.inputs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.input-box label {
+    font-size: 13px;
+    color: #94a3b8;
+}
+
+.input-box input {
+    margin-top: 6px;
+    width: 100%;
+    padding: 10px;
+    border-radius: 10px;
+    background: #020617;
+    border: 1px solid #334155;
+    color: #fff;
+}
+
+/* FOOTER */
+.day-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 18px;
+    flex-wrap: wrap;
+}
+
+.day-total {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.alert {
+    font-size: 13px;
+    color: #f87171;
+}
+
+/* SUMMARY */
+.summary {
+    margin-top: 40px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+}
+
+.summary-card {
+    background: #020617;
+    border: 1px solid #1e293b;
+    border-radius: 18px;
+    padding: 22px;
+    text-align: center;
+}
+
+.summary-card span {
+    display: block;
+    margin-top: 8px;
+    font-size: 26px;
+    font-weight: 700;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <h1>Trip Budget & Cost Breakdown</h1>
+        <p>Track daily expenses and stay within your budget</p>
+    </div>
+
+    <div class="controls">
+        <input type="number" id="limit" placeholder="Daily Budget (₹)">
+        <button onclick="addDay()">+ Add Day</button>
+    </div>
+
+    <div id="days"></div>
+
+    <div class="summary">
+        <div class="summary-card">
+            Total Trip Cost
+            <span>₹<span id="total">0</span></span>
+        </div>
+        <div class="summary-card">
+            Average Cost / Day
+            <span>₹<span id="avg">0</span></span>
+        </div>
+        <div class="summary-card">
+            Over Budget Days
+            <span id="over">0</span>
+        </div>
+    </div>
+
+</div>
+
+<script>
+let dayCount = 0;
+
+function addDay() {
+    dayCount++;
+    const day = document.createElement("div");
+    day.className = "day";
+    day.innerHTML = `
+        <div class="day-title">Day ${dayCount}</div>
+        <div class="inputs">
+            <div class="input-box">
+                <label>Transport</label>
+                <input type="number" min="0" oninput="calculate()">
+            </div>
+            <div class="input-box">
+                <label>Stay</label>
+                <input type="number" min="0" oninput="calculate()">
+            </div>
+            <div class="input-box">
+                <label>Activities</label>
+                <input type="number" min="0" oninput="calculate()">
+            </div>
+            <div class="input-box">
+                <label>Meals</label>
+                <input type="number" min="0" oninput="calculate()">
+            </div>
+        </div>
+        <div class="day-footer">
+            <div class="day-total">Total: ₹<span>0</span></div>
+            <div class="alert"></div>
+        </div>
+    `;
+    document.getElementById("days").appendChild(day);
+    calculate();
+}
+
+function calculate() {
+    let total = 0, over = 0;
+    const limit = Number(document.getElementById("limit").value) || 0;
+
+    document.querySelectorAll(".day").forEach(day => {
+        let sum = 0;
+        day.querySelectorAll("input").forEach(i => sum += Number(i.value) || 0);
+        day.querySelector(".day-total span").textContent = sum;
+        total += sum;
+
+        const alert = day.querySelector(".alert");
+        if (limit && sum > limit) {
+            alert.textContent = "Over budget";
+            over++;
+        } else {
+            alert.textContent = "";
+        }
+    });
+
+    document.getElementById("total").textContent = total;
+    document.getElementById("avg").textContent =
+        dayCount ? Math.round(total / dayCount) : 0;
+    document.getElementById("over").textContent = over;
+}
+
+/* Start with one day */
+addDay();
+</script>
+
+</body>
+</html>
