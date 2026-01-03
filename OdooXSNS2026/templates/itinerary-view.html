@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Itinerary – Selected Place</title>
+
+<style>
+body {
+    margin: 0;
+
+        background: #0f172a;
+        color: #e5e7eb;
+      
+    font-family: "Segoe UI", sans-serif;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 25px auto;
+    border: 1px solid #444;
+    border-radius: 16px;
+    padding: 25px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+}
+
+/* CONTROLS */
+.controls {
+    display: grid;
+    grid-template-columns: 1fr auto auto auto;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.controls input,
+.controls select,
+.controls button {
+    background: #111;
+    border: 1px solid #555;
+    color: #fff;
+    padding: 10px 14px;
+    border-radius: 10px;
+}
+
+.controls button { cursor: pointer; }
+
+/* TITLE */
+.title {
+    text-align: center;
+    font-size: 26px;
+    margin-bottom: 25px;
+    font-weight: bold;
+}
+
+/* TABLE HEADER */
+.table-header {
+    display: grid;
+    grid-template-columns: 2fr 1fr auto;
+    font-weight: bold;
+    border-bottom: 1px solid #555;
+    padding-bottom: 10px;
+    margin-bottom: 12px;
+}
+
+/* DAY */
+.day {
+    border: 1px solid #444;
+    border-radius: 14px;
+    padding: 15px;
+    margin-bottom: 25px;
+    background: #111;
+}
+
+.day-title {
+    font-weight: bold;
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+/* ACTIVITY */
+.activity {
+    display: grid;
+    grid-template-columns: 2fr 1fr auto;
+    gap: 10px;
+    margin-bottom: 8px;
+    align-items: center;
+}
+
+.activity input {
+    background: #0b0b0b;
+    border: 1px solid #555;
+    border-radius: 10px;
+    padding: 8px 10px;
+    color: #fff;
+}
+
+/* BUTTONS */
+button {
+    background: #27ae60;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 10px;
+    color: white;
+}
+
+.remove-btn { background: #c0392b; }
+
+.group-title {
+    margin: 14px 0 8px;
+    font-weight: bold;
+    color: #a5b4fc;
+}
+
+.day-total,
+.overall-total {
+    text-align: right;
+    font-weight: bold;
+}
+
+/* ALERT */
+.alert-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.alert-box {
+    background: #111;
+    border: 1px solid #555;
+    border-radius: 14px;
+    padding: 25px;
+    width: 320px;
+    text-align: center;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="controls">
+        <input type="text" placeholder="Search activity..." oninput="searchActivities(this.value)">
+        <select onchange="groupByExpense(this.value)">
+            <option value="">Group</option>
+            <option value="expense">Group by Expense</option>
+        </select>
+        <select onchange="sortExpenses(this.value)">
+            <option value="">Sort</option>
+            <option value="low">Low → High</option>
+            <option value="high">High → Low</option>
+        </select>
+        <button onclick="addDay()">+ Add Day</button>
+    </div>
+
+    <div class="title">Itinerary – Selected Place</div>
+
+    <div class="table-header">
+        <div>Activity</div>
+        <div>Expense (₹)</div>
+        <div>Action</div>
+    </div>
+
+    <div id="days"></div>
+
+    <div class="overall-total">
+        Overall Total: ₹<span id="overall">0</span>
+    </div>
+</div>
+
+<!-- ALERT -->
+<div class="alert-overlay" id="alert">
+    <div class="alert-box">
+        <h3>Action Required</h3>
+        <p id="alertMsg"></p>
+        <button onclick="closeAlert()">OK</button>
+    </div>
+</div>
+
+<script>
+let dayCount = 0;
+
+/* ALERT */
+function showAlert(msg) {
+    alertMsg.textContent = msg;
+    alert.style.display = "flex";
+}
+function closeAlert() {
+    alert.style.display = "none";
+}
+
+/* ADD DAY */
+function addDay() {
+    dayCount++;
+    const day = document.createElement("div");
+    day.className = "day";
+    day.id = `day${dayCount}`;
+    day.innerHTML = `
+        <div class="day-title">Day ${dayCount}</div>
+        <div class="list"></div>
+        <button onclick="addActivity('${day.id}')">+ Add Activity</button>
+        <div class="day-total">Total: ₹<span>0</span></div>
+    `;
+    days.appendChild(day);
+    addActivity(day.id);
+}
+
+/* ADD ACTIVITY */
+function addActivity(dayId) {
+    const list = document.querySelector(`#${dayId} .list`);
+    const last = list.lastElementChild;
+    if (last && (!last.children[0].value || !last.children[1].value)) {
+        showAlert("Fill previous activity before adding new.");
+        return;
+    }
+    const row = document.createElement("div");
+    row.className = "activity";
+    row.innerHTML = `
+        <input type="text" placeholder="Activity">
+        <input type="number" min="0" oninput="updateTotals()">
+        <button class="remove-btn" onclick="removeActivity(this)">✕</button>
+    `;
+    list.appendChild(row);
+}
+
+/* REMOVE */
+function removeActivity(btn) {
+    btn.parentElement.remove();
+    updateTotals();
+}
+
+/* TOTALS */
+function updateTotals() {
+    let overall = 0;
+    document.querySelectorAll(".day").forEach(day => {
+        let total = 0;
+        day.querySelectorAll("input[type='number']").forEach(i => total += Number(i.value) || 0);
+        day.querySelector(".day-total span").textContent = total;
+        overall += total;
+    });
+    overall.textContent = overall;
+}
+
+/* SORT */
+function sortExpenses(order) {
+    if (!order) return;
+    document.querySelectorAll(".list").forEach(list => {
+        [...list.querySelectorAll(".activity")]
+            .sort((a,b)=> order==="low"
+                ? a.children[1].value - b.children[1].value
+                : b.children[1].value - a.children[1].value
+            )
+            .forEach(i => list.appendChild(i));
+    });
+}
+
+/* ✅ GROUP BY EXPENSE – FIXED */
+function groupByExpense(type) {
+    if (!type) return;
+
+    document.querySelectorAll(".day").forEach(day => {
+        const list = day.querySelector(".list");
+        const items = [...list.querySelectorAll(".activity")];
+        if (!items.length) return;
+
+        for (let i of items) {
+            if (!i.children[1].value) {
+                showAlert("Enter expense for all activities.");
+                return;
+            }
+        }
+
+        list.innerHTML = "";
+
+        const low=[], mid=[], high=[];
+        items.forEach(i=>{
+            const v = Number(i.children[1].value);
+            if (v <= 1000) low.push(i);
+            else if (v <= 3000) mid.push(i);
+            else high.push(i);
+        });
+
+        if (low.length) {
+            list.innerHTML += `<div class="group-title">Low Cost</div>`;
+            low.forEach(i=>list.appendChild(i));
+        }
+        if (mid.length) {
+            list.innerHTML += `<div class="group-title">Medium Cost</div>`;
+            mid.forEach(i=>list.appendChild(i));
+        }
+        if (high.length) {
+            list.innerHTML += `<div class="group-title">High Cost</div>`;
+            high.forEach(i=>list.appendChild(i));
+        }
+    });
+}
+
+/* SEARCH */
+function searchActivities(text) {
+    document.querySelectorAll(".activity").forEach(a=>{
+        a.style.display = a.children[0].value.toLowerCase().includes(text.toLowerCase()) ? "" : "none";
+    });
+}
+
+/* INIT */
+addDay();
+addDay();
+</script>
+
+</body>
+</html>
