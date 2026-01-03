@@ -97,7 +97,7 @@
 <!-- Signup Form -->
 <div class="signup-container">
     <h2>Create Account</h2>
-    <form action="/signup" method="post" enctype="multipart/form-data" class="d-flex flex-column gap-3">
+    <form action="/signup" method="post" class="d-flex flex-column gap-3">
         <div>
             <label for="name" class="form-label"><b>Name:</b></label>
             <input type="text" class="form-control" id="name" placeholder="Enter your name" name="name" required>
@@ -114,12 +114,21 @@
         </div>
 
         <div>
-            <label for="profile_pic" class="form-label"><b>Profile Picture:</b></label>
-            <input type="file" class="form-control" id="profile_pic" name="profile_pic" accept="image/*">
+            <label for="city" class="form-label"><b>City:</b></label>
+            <input type="text" class="form-control" id="city" placeholder="Enter your city" name="city" required>
         </div>
 
-        <input type="submit" class="btn btn-success mt-2" value="Sign Up">
-        <p class="mt-2 text-center">Already have an account? <a href="/login">Login here</a></p>
+        <div>
+            <label for="country" class="form-label"><b>Country:</b></label>
+            <input type="text" class="form-control" id="country" placeholder="Enter your country" name="country" required>
+        </div>
+
+        <div>
+            <label for="phone_no" class="form-label"><b>Phone Number:</b></label>
+            <input type="text" class="form-control" id="phone_no" placeholder="Enter your phone number" name="phone_no" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-2">Sign Up</button>
     </form>
 </div>
 
