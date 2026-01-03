@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>GlobeTrotter | User Profile</title>
+
+    <!-- 🔹 INTERNAL CSS -->
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", sans-serif;
+      }
+
+      body {
+        background: #0f172a;
+        color: #e5e7eb;
+      }
+
+      /* NAVBAR */
+      .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 40px;
+        background: #020617;
+      }
+
+      .logo {
+        font-size: 22px;
+        font-weight: bold;
+      }
+
+      .nav-links {
+        list-style: none;
+        display: flex;
+        gap: 20px;
+      }
+
+      .nav-links a {
+        color: #cbd5f5;
+        text-decoration: none;
+        padding: 6px 12px;
+        border-radius: 6px;
+      }
+
+      .nav-links a:hover,
+      .nav-links .active {
+        background: #1e293b;
+        color: #fff;
+      }
+
+      .logout {
+        color: #f87171;
+      }
+
+      /* PROFILE CONTAINER */
+      .profile-container {
+        max-width: 1100px;
+        margin: 40px auto;
+        padding: 30px;
+        background: #020617;
+        border-radius: 12px;
+      }
+
+      /* USER INFO */
+      .user-info {
+        display: flex;
+        gap: 30px;
+        align-items: center;
+        margin-bottom: 40px;
+      }
+
+      .avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        border: 2px solid #6366f1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 40px;
+      }
+
+      .details h2 {
+        margin-bottom: 10px;
+      }
+
+      .details p {
+        margin-bottom: 6px;
+        color: #94a3b8;
+      }
+
+      .edit-btn {
+        margin-top: 12px;
+        padding: 8px 16px;
+        border: none;
+        background: #6366f1;
+        color: #fff;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+
+      .edit-btn:hover {
+        background: #4f46e5;
+      }
+
+      /* TRIPS SECTION */
+      .trips-section {
+        margin-top: 30px;
+      }
+
+      .trips-section h3 {
+        margin-bottom: 20px;
+      }
+
+      .trip-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 20px;
+      }
+
+      .trip-card {
+        background: #020617;
+        border: 1px solid #1e293b;
+        border-radius: 10px;
+        padding: 20px;
+        text-align: center;
+      }
+
+      .trip-card h4 {
+        margin-bottom: 20px;
+      }
+
+      .trip-card button {
+        padding: 8px 14px;
+        border: none;
+        background: #0ea5e9;
+        color: #fff;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+
+      .trip-card button:hover {
+        background: #0284c7;
+      }
+
+      /* RESPONSIVE */
+      @media (max-width: 768px) {
+        .user-info {
+          flex-direction: column;
+          text-align: center;
+        }
+
+        .navbar {
+          flex-direction: column;
+          gap: 10px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- 🔹 NAVBAR -->
+    <nav class="navbar">
+      <div class="logo">🌍 GlobeTrotter</div>
+      <ul class="nav-links">
+        <li><a href="#">Dashboard</a></li>
+        <li><a href="#">My Trips</a></li>
+        <li><a href="#">Create Trip</a></li>
+        <li><a href="#">Budget</a></li>
+        <li><a href="#" class="active">Profile</a></li>
+        <li><a href="#" class="logout">Logout</a></li>
+      </ul>
+    </nav>
+
+    <!-- 🔹 PROFILE -->
+    <div class="profile-container">
+      <!-- USER DETAILS -->
+      <section class="user-info">
+        <div class="avatar">👤</div>
+
+        <div class="details">
+          <h2 id="username">Harshini S</h2>
+          <p id="email">Email: harshini@example.com</p>
+          <p>Preferred Language: English</p>
+          <button class="edit-btn" onclick="editProfile()">Edit Profile</button>
+        </div>
+      </section>
+
+      <!-- PREPLANNED TRIPS -->
+      <section class="trips-section">
+        <h3>Preplanned Trips</h3>
+        <div class="trip-cards">
+          <div class="trip-card">
+            <h4>Paris Getaway</h4>
+            <button onclick="viewTrip('Paris Getaway')">View</button>
+          </div>
+          <div class="trip-card">
+            <h4>Italy Tour</h4>
+            <button onclick="viewTrip('Italy Tour')">View</button>
+          </div>
+          <div class="trip-card">
+            <h4>Japan Dream</h4>
+            <button onclick="viewTrip('Japan Dream')">View</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- PREVIOUS TRIPS -->
+      <section class="trips-section">
+        <h3>Previous Trips</h3>
+        <div class="trip-cards">
+          <div class="trip-card">
+            <h4>Goa Trip</h4>
+            <button onclick="viewTrip('Goa Trip')">View</button>
+          </div>
+          <div class="trip-card">
+            <h4>Kerala Tour</h4>
+            <button onclick="viewTrip('Kerala Tour')">View</button>
+          </div>
+          <div class="trip-card">
+            <h4>Bangalore</h4>
+            <button onclick="viewTrip('Bangalore')">View</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- 🔹 INTERNAL JS -->
+    <script>
+      function editProfile() {
+        alert("Edit Profile feature will be implemented here.");
+      }
+
+      function viewTrip(tripName) {
+        alert("Opening itinerary for: " + tripName);
+        // window.location.href = "itinerary.html";
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>GlobeTrotter | Public Itinerary</title>
+
+    <!-- INTERNAL CSS -->
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", sans-serif;
+      }
+
+      body {
+        background: #0f172a;
+        color: #e5e7eb;
+      }
+
+      /* NAVBAR */
+      .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 40px;
+        background: #020617;
+      }
+
+      .logo {
+        font-size: 22px;
+        font-weight: bold;
+      }
+
+      .nav-links {
+        list-style: none;
+        display: flex;
+        gap: 20px;
+      }
+
+      .nav-links a {
+        color: #cbd5f5;
+        text-decoration: none;
+        padding: 6px 12px;
+        border-radius: 6px;
+      }
+
+      .nav-links a:hover {
+        background: #1e293b;
+        color: #fff;
+      }
+
+      /* MAIN CONTAINER */
+      .container {
+        max-width: 1100px;
+        margin: 40px auto;
+        padding: 30px;
+        background: #020617;
+        border-radius: 12px;
+      }
+
+      /* HEADER */
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+      }
+
+      .header h2 {
+        margin-bottom: 6px;
+      }
+
+      .summary {
+        color: #94a3b8;
+        font-size: 14px;
+      }
+
+      .copy-btn {
+        padding: 10px 18px;
+        border: none;
+        border-radius: 8px;
+        background: #22c55e;
+        color: #022c22;
+        font-weight: bold;
+        cursor: pointer;
+      }
+
+      .copy-btn:hover {
+        background: #16a34a;
+      }
+
+      /* ITINERARY */
+      .day {
+        border: 1px solid #1e293b;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 15px;
+      }
+
+      .day h4 {
+        margin-bottom: 10px;
+        color: #93c5fd;
+      }
+
+      .activity {
+        padding: 8px 0;
+        color: #cbd5f5;
+        font-size: 14px;
+      }
+
+      /* SHARE */
+      .share {
+        margin-top: 30px;
+        border-top: 1px solid #1e293b;
+        padding-top: 20px;
+      }
+
+      .share button {
+        margin-right: 10px;
+        padding: 8px 14px;
+        border-radius: 6px;
+        border: none;
+        cursor: pointer;
+        background: #0ea5e9;
+        color: #fff;
+      }
+
+      .share button:hover {
+        background: #0284c7;
+      }
+
+      /* READ ONLY BADGE */
+      .readonly {
+        font-size: 12px;
+        background: #7c2d12;
+        color: #fed7aa;
+        padding: 4px 10px;
+        border-radius: 999px;
+        display: inline-block;
+        margin-top: 8px;
+      }
+
+      @media (max-width: 768px) {
+        .header {
+          flex-direction: column;
+          gap: 15px;
+          align-items: flex-start;
+        }
+
+        .navbar {
+          flex-direction: column;
+          gap: 10px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- NAVBAR -->
+    <nav class="navbar">
+      <div class="logo">🌍 GlobeTrotter</div>
+      <ul class="nav-links">
+        <li><a href="#">Explore</a></li>
+        <li><a href="#">Community</a></li>
+        <li><a href="#">Login</a></li>
+      </ul>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <div class="container">
+      <!-- HEADER -->
+      <div class="header">
+        <div>
+          <h2>7-Day Italy Dream Trip</h2>
+          <p class="summary">
+            Rome → Florence → Venice | Estimated Budget: ₹1,20,000
+          </p>
+          <span class="readonly">Read-only Public View</span>
+        </div>
+
+        <button class="copy-btn" onclick="copyTrip()">Copy Trip</button>
+      </div>
+
+      <!-- ITINERARY DAYS -->
+      <div class="day">
+        <h4>Day 1 – Rome</h4>
+        <div class="activity">✔ Colosseum Visit</div>
+        <div class="activity">✔ Roman Forum</div>
+        <div class="activity">✔ Local Food Tour</div>
+      </div>
+
+      <div class="day">
+        <h4>Day 2 – Florence</h4>
+        <div class="activity">✔ Duomo Cathedral</div>
+        <div class="activity">✔ Art Gallery Visit</div>
+      </div>
+
+      <div class="day">
+        <h4>Day 3 – Venice</h4>
+        <div class="activity">✔ Gondola Ride</div>
+        <div class="activity">✔ St. Mark’s Square</div>
+      </div>
+
+      <!-- SHARE -->
+      <div class="share">
+        <h3>Share this itinerary</h3>
+        <button onclick="share('twitter')">Twitter</button>
+        <button onclick="share('linkedin')">LinkedIn</button>
+        <button onclick="share('copy')">Copy Link</button>
+      </div>
+    </div>
+
+    <!-- INTERNAL JS -->
+    <script>
+      function copyTrip() {
+        alert("Trip copied to your account! You can now edit it.");
+      }
+
+      function share(platform) {
+        if (platform === "copy") {
+          navigator.clipboard.writeText(window.location.href);
+          alert("Public itinerary link copied!");
+        } else {
+          alert("Sharing on " + platform + " (demo purpose)");
+        }
+      }
+    </script>
+  </body>
+</html>

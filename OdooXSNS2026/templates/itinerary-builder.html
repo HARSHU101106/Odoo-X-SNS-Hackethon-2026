@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Build Itinerary</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Arial, sans-serif;
+        background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+        min-height: 100vh;
+        color: #ffffff;
+        display: flex;
+        justify-content: center;
+        padding: 40px 15px;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 750px;
+        background: #121212;
+        border-radius: 16px;
+        padding: 30px;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7);
+      }
+
+      h2 {
+        text-align: center;
+        font-size: 26px;
+        margin-bottom: 30px;
+      }
+
+      .itinerary-card {
+        background: #1c1c1c;
+        border-radius: 14px;
+        padding: 20px;
+        margin-bottom: 15px;
+        border: 1px solid #333;
+        position: relative;
+      }
+
+      input,
+      textarea {
+        width: 100%;
+        background: #262626;
+        border: 1px solid #555;
+        padding: 12px;
+        border-radius: 10px;
+        color: white;
+        font-size: 15px;
+      }
+
+      textarea {
+        resize: none;
+        height: 90px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 6px;
+        margin-top: 12px;
+        font-size: 14px;
+        color: #cccccc;
+      }
+
+      .date-row {
+        display: flex;
+        gap: 12px;
+        margin-top: 12px;
+      }
+
+      .date-row input {
+        flex: 1;
+      }
+
+      .add-btn,
+      .save-btn,
+      .up-btn,
+      .down-btn {
+        padding: 10px 14px;
+        border-radius: 12px;
+        border: none;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 10px;
+        margin-right: 5px;
+      }
+
+      .add-btn {
+        width: 100%;
+        background: linear-gradient(135deg, #6a5acd, #836fff);
+        color: white;
+      }
+
+      .save-btn {
+        width: 100%;
+        background: linear-gradient(135deg, #00b894, #55efc4);
+        color: white;
+      }
+
+      /* Move up/down buttons */
+      .reorder-buttons {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+
+      .up-btn {
+        background: #3498db;
+        color: white;
+      }
+
+      .down-btn {
+        background: #e67e22;
+        color: white;
+      }
+
+      /* SUMMARY TABLE */
+      #summaryTable {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 25px;
+        display: none;
+      }
+
+      #summaryTable th,
+      #summaryTable td {
+        border: 1px solid #555;
+        padding: 10px;
+        text-align: center;
+      }
+
+      #summaryTable th {
+        background-color: #333;
+        color: #fff;
+      }
+
+      .note {
+        font-size: 13px;
+        color: #aaa;
+        margin-top: 8px;
+      }
+
+      /* Custom alert */
+      .custom-alert {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #e74c3c;
+        color: white;
+        padding: 15px 25px;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        font-size: 16px;
+        z-index: 1000;
+        opacity: 0;
+        transition: opacity 0.4s ease, top 0.4s ease;
+      }
+
+      .custom-alert.show {
+        opacity: 1;
+        top: 40px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Build Your Itinerary 🗺️</h2>
+
+      <form id="itineraryForm">
+        <div id="stopsContainer">
+          <div class="itinerary-card">
+            <label>Stop / City Name</label>
+            <input type="text" placeholder="Eg: Munnar Stay" required />
+
+            <label>Activities & Notes</label>
+            <textarea
+              placeholder="Sightseeing, hotel, local travel, food..."
+              required
+            ></textarea>
+
+            <label>Travel Dates</label>
+            <div class="date-row">
+              <input type="date" required />
+              <input type="date" required />
+            </div>
+
+            <label>Budget for this stop (₹)</label>
+            <input type="number" placeholder="Eg: 12000" required />
+
+            <div class="reorder-buttons">
+              <button type="button" class="up-btn" onclick="moveUp(this)">
+                ↑
+              </button>
+              <button type="button" class="down-btn" onclick="moveDown(this)">
+                ↓
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <button type="button" class="add-btn" onclick="addStop()">
+          + Add Another Stop
+        </button>
+        <button type="button" class="save-btn" onclick="saveItinerary()">
+          💾 Save Itinerary
+        </button>
+      </form>
+
+      <p class="note">
+        Add cities, dates, and activities to build your full trip plan. Use
+        arrows to reorder stops.
+      </p>
+
+      <!-- SUMMARY TABLE -->
+      <table id="summaryTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>City / Stop</th>
+            <th>Activities & Notes</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Budget (₹)</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <!-- Custom alert box -->
+    <div id="alertBox" class="custom-alert"></div>
+
+    <script>
+      // Add stop dynamically
+      function addStop() {
+        const container = document.getElementById("stopsContainer");
+        const newStop = document.createElement("div");
+        newStop.className = "itinerary-card";
+
+        newStop.innerHTML = `
+        <label>Stop / City Name</label>
+        <input type="text" placeholder="Eg: Next Destination" required>
+
+        <label>Activities & Notes</label>
+        <textarea placeholder="Activities, stay, transport..." required></textarea>
+
+        <label>Travel Dates</label>
+        <div class="date-row">
+            <input type="date" required>
+            <input type="date" required>
+        </div>
+
+        <label>Budget for this stop (₹)</label>
+        <input type="number" placeholder="Eg: 8000" required>
+
+        <div class="reorder-buttons">
+            <button type="button" class="up-btn" onclick="moveUp(this)">↑</button>
+            <button type="button" class="down-btn" onclick="moveDown(this)">↓</button>
+        </div>
+    `;
+        container.appendChild(newStop);
+      }
+
+      // Move up/down buttons
+      function moveUp(btn) {
+        const card = btn.closest(".itinerary-card");
+        const prev = card.previousElementSibling;
+        if (prev) card.parentNode.insertBefore(card, prev);
+      }
+
+      function moveDown(btn) {
+        const card = btn.closest(".itinerary-card");
+        const next = card.nextElementSibling;
+        if (next)
+          card.parentNode.insertBefore(
+            next,
+            card.nextElementSibling.nextElementSibling
+          );
+      }
+
+      // Custom alert function
+      function showAlert(message) {
+        const alertBox = document.getElementById("alertBox");
+        alertBox.textContent = message;
+        alertBox.classList.add("show");
+        setTimeout(() => alertBox.classList.remove("show"), 3000);
+      }
+
+      // Save itinerary with validation
+      function saveItinerary() {
+        const stops = document.querySelectorAll(".itinerary-card");
+        const tripData = [];
+
+        for (const stop of stops) {
+          const city = stop.querySelector('input[type="text"]').value.trim();
+          const notes = stop.querySelector("textarea").value.trim();
+          const dates = stop.querySelectorAll('input[type="date"]');
+          const budget = stop
+            .querySelector('input[type="number"]')
+            .value.trim();
+
+          if (
+            !city ||
+            !notes ||
+            !dates[0].value ||
+            !dates[1].value ||
+            !budget
+          ) {
+            showAlert("Please fill in all fields before saving the itinerary!");
+            return;
+          }
+
+          tripData.push({
+            city,
+            notes,
+            startDate: dates[0].value,
+            endDate: dates[1].value,
+            budget,
+          });
+        }
+
+        // Populate summary table
+        const table = document.getElementById("summaryTable");
+        const tbody = table.querySelector("tbody");
+        tbody.innerHTML = "";
+
+        tripData.forEach((stop, i) => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${i + 1}</td>
+            <td>${stop.city}</td>
+            <td>${stop.notes}</td>
+            <td>${stop.startDate}</td>
+            <td>${stop.endDate}</td>
+            <td>${stop.budget}</td>
+        `;
+          tbody.appendChild(row);
+        });
+
+        table.style.display = "table";
+        table.scrollIntoView({ behavior: "smooth" });
+      }
+    </script>
+  </body>
+</html>

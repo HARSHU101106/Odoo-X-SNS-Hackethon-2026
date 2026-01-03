@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User Trip Listing</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Arial, sans-serif;
+        background: #0f172a;
+        color: #e5e7eb;
+        min-height: 100vh;
+        color: #ffffff;
+        display: flex;
+        justify-content: center;
+        padding: 50px 20px;
+      }
+      .container {
+        max-width: 800px;
+        margin: auto;
+      }
+      h1 {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+      .search-bar {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+      .search-bar input,
+      .search-bar button {
+        padding: 8px;
+        border-radius: 4px;
+        border: none;
+      }
+      .search-bar input {
+        flex: 1;
+      }
+      .search-bar button {
+        background-color: #4b4b4b;
+        color: #fff;
+        cursor: pointer;
+      }
+      .category {
+        margin-bottom: 30px;
+      }
+      .category h2 {
+        border-bottom: 1px solid #444;
+        padding-bottom: 5px;
+      }
+      .trip-card {
+        background-color: #2a2a2a;
+        padding: 15px;
+        border-radius: 6px;
+        margin: 10px 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: background 0.2s;
+      }
+      .trip-card:hover {
+        background-color: #3a3a3a;
+      }
+      .trip-info {
+        display: flex;
+        flex-direction: column;
+      }
+      .trip-info span {
+        margin: 2px 0;
+      }
+      .trip-actions button {
+        margin-left: 5px;
+        padding: 5px 10px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        color: #fff;
+        transition: background 0.2s;
+      }
+      .edit {
+        background-color: #4caf50;
+      }
+      .view {
+        background-color: #2196f3;
+      }
+      .delete {
+        background-color: #f44336;
+      }
+      .view.active {
+        background-color: #64b5f6;
+      }
+
+      /* Modal Styles */
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 999;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.7);
+      }
+      .modal-content {
+        background-color: grey;
+        margin: 10% auto;
+        padding: 20px;
+        border-radius: 8px;
+        width: 90%;
+        max-width: 400px;
+        color: #fff;
+      }
+      .modal-content input,
+      .modal-content button {
+        width: 100%;
+        margin: 5px 0;
+        padding: 8px;
+        border-radius: 4px;
+        border: none;
+      }
+      .modal-content button {
+        background-color: #4caf50;
+        color: #fff;
+        cursor: pointer;
+      }
+      .modal-close {
+        background-color: #f44336;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>GlobalTrotter</h1>
+
+      <div class="search-bar">
+        <input type="text" id="search" placeholder="Search trips..." />
+        <input type="date" id="filterDate" />
+        <button onclick="searchTrips()">Search</button>
+        <button onclick="filterByDate()">Filter by Date</button>
+        <button onclick="sortTrips()">Sort By</button>
+      </div>
+
+      <div class="category" id="ongoing">
+        <h2>Ongoing</h2>
+      </div>
+      <div class="category" id="upcoming">
+        <h2>Upcoming</h2>
+      </div>
+      <div class="category" id="completed">
+        <h2>Completed</h2>
+      </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="tripModal" class="modal">
+      <div class="modal-content">
+        <h3 id="modalTitle">Edit Trip</h3>
+        <input type="text" id="modalName" placeholder="Trip Name" />
+        <input
+          type="text"
+          id="modalDates"
+          placeholder="Trip Dates (e.g., Jan 1 - Jan 7)"
+        />
+        <input
+          type="number"
+          id="modalDestinations"
+          placeholder="Number of Destinations"
+        />
+        <button onclick="saveTrip()">Save</button>
+        <button class="modal-close" onclick="closeModal()">Cancel</button>
+      </div>
+    </div>
+
+    <script>
+      let trips = [
+        {
+          name: "Virtuous Walrus",
+          status: "ongoing",
+          dates: "Jan 1 - Jan 7",
+          destinations: 3,
+        },
+        {
+          name: "Ultimate Explorer",
+          status: "completed",
+          dates: "Dec 10 - Dec 20",
+          destinations: 5,
+        },
+        {
+          name: "Sunny Escape",
+          status: "upcoming",
+          dates: "Feb 5 - Feb 12",
+          destinations: 2,
+        },
+        {
+          name: "Mountain Trek",
+          status: "completed",
+          dates: "Nov 1 - Nov 10",
+          destinations: 4,
+        },
+      ];
+
+      let currentTrip = null; // for modal
+
+      function renderTrips(filteredTrips = trips) {
+        const ongoing = document.getElementById("ongoing");
+        const upcoming = document.getElementById("upcoming");
+        const completed = document.getElementById("completed");
+
+        ongoing.innerHTML = "<h2>Ongoing</h2>";
+        upcoming.innerHTML = "<h2>Upcoming</h2>";
+        completed.innerHTML = "<h2>Completed</h2>";
+
+        filteredTrips.forEach((trip) => {
+          const card = document.createElement("div");
+          card.className = "trip-card";
+          card.innerHTML = `
+            <div class="trip-info">
+                <span><strong>${trip.name}</strong></span>
+                <span>${trip.dates}</span>
+                <span>Destinations: ${trip.destinations}</span>
+            </div>
+            <div class="trip-actions">
+                <button class="edit" onclick="openModal('edit','${trip.name}')">Edit</button>
+                <button class="view" onclick="openModal('view','${trip.name}')">View</button>
+                <button class="delete" onclick="deleteTrip('${trip.name}')">Delete</button>
+            </div>
+        `;
+          if (trip.status === "ongoing") ongoing.appendChild(card);
+          if (trip.status === "upcoming") upcoming.appendChild(card);
+          if (trip.status === "completed") completed.appendChild(card);
+        });
+      }
+
+      // Modal Functions
+      function openModal(mode, name) {
+        const modal = document.getElementById("tripModal");
+        const trip = trips.find((t) => t.name === name);
+        currentTrip = trip;
+
+        document.getElementById("modalTitle").innerText =
+          mode === "edit" ? "Edit Trip" : "View Trip";
+        document.getElementById("modalName").value = trip.name;
+        document.getElementById("modalDates").value = trip.dates;
+        document.getElementById("modalDestinations").value = trip.destinations;
+
+        const inputs = document.querySelectorAll("#tripModal input");
+        inputs.forEach((input) => (input.disabled = mode === "view")); // disable for view mode
+
+        modal.style.display = "block";
+      }
+
+      function closeModal() {
+        document.getElementById("tripModal").style.display = "none";
+        currentTrip = null;
+      }
+
+      function saveTrip() {
+        if (currentTrip) {
+          currentTrip.name = document.getElementById("modalName").value;
+          currentTrip.dates = document.getElementById("modalDates").value;
+          currentTrip.destinations = parseInt(
+            document.getElementById("modalDestinations").value
+          );
+          renderTrips();
+          closeModal();
+        }
+      }
+
+      // Search Function
+      function searchTrips() {
+        const query = document.getElementById("search").value.toLowerCase();
+        const filtered = trips.filter((t) =>
+          t.name.toLowerCase().includes(query)
+        );
+        renderTrips(filtered);
+      }
+
+      // Filter by Date (simple substring match)
+      function filterByDate() {
+        const selectedDate = document.getElementById("filterDate").value;
+        if (!selectedDate) return renderTrips();
+        const filtered = trips.filter((t) => t.dates.includes(selectedDate));
+        renderTrips(filtered);
+      }
+
+      function deleteTrip(name) {
+        trips = trips.filter((t) => t.name !== name);
+        renderTrips();
+      }
+
+      function sortTrips() {
+        const option = prompt(
+          "Sort By:\n1. Name (A → Z)\n2. Number of Destinations\n3. Status (Ongoing → Upcoming → Completed)",
+          "1"
+        );
+        if (!option) return;
+
+        let sortedTrips = [...trips]; // copy array
+
+        switch (option) {
+          case "1": // Name
+            sortedTrips.sort((a, b) => a.name.localeCompare(b.name));
+            break;
+          case "2": // Destinations
+            sortedTrips.sort((a, b) => a.destinations - b.destinations);
+            break;
+          case "3": // Status
+            const order = { ongoing: 1, upcoming: 2, completed: 3 };
+            sortedTrips.sort((a, b) => order[a.status] - order[b.status]);
+            break;
+          default:
+            alert("Invalid option!");
+            return;
+        }
+
+        renderTrips(sortedTrips);
+      }
+
+      renderTrips();
+    </script>
+  </body>
+</html>

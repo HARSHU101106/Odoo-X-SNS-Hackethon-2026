@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GlobeTrotters Login</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      /* Body */
+      body {
+        background: #0f172a;
+        color: #e5e7eb;
+        margin: 0;
+        font-family: Arial, sans-serif;
+      }
+
+      /* Navbar/Header */
+      header {
+        padding: 10px 20px;
+        background-color: #020617; /* Dark navbar */
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        border-bottom-left-radius: 15px;
+        border-bottom-right-radius: 15px;
+      }
+
+      header img {
+        border-radius: 50%;
+      }
+
+      header h1 {
+        margin: 0;
+      }
+
+      /* Navbar buttons */
+      header .btn {
+        color: #fff;
+        border-color: #4eb5be; /* Optional: purple accent */
+      }
+
+      header .btn:hover {
+        background-color: #57e1ee;
+        color: #0f0f0f;
+      }
+
+      /* Marquee / Scrolling Text */
+      .scroll-text {
+        background-color: rgba(255, 255, 255, 0.1); /* white background */
+        color: #ffffff; /* black text */
+        padding: 5px 0;
+        text-align: center;
+        overflow: hidden;
+        white-space: nowrap;
+      }
+
+      .scroll-text span {
+        display: inline-block;
+        padding-left: 100%;
+        animation: scroll 15s linear infinite;
+      }
+
+      @keyframes scroll {
+        0% {
+          transform: translateX(0%);
+        }
+        100% {
+          transform: translateX(-100%);
+        }
+      }
+
+      /* Login container */
+      .login-container {
+        max-width: 400px;
+        margin: 50px auto;
+        background-color: rgba(0, 0, 0, 0.6);
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+      }
+
+      .login-container h2 {
+        color: #fff;
+      }
+
+      .login-container a.btn-link {
+        color: #fff;
+        text-decoration: underline;
+      }
+
+      .login-container a.btn-link:hover {
+        color: #ddd;
+      }
+
+      /* Form input fields */
+      .login-container input.form-control {
+        background-color: rgba(255, 255, 255, 0.1);
+        border: none;
+        color: #fff;
+      }
+
+      .login-container input.form-control::placeholder {
+        color: #d1d5db;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Header -->
+    <header>
+      <div class="d-flex align-items-center">
+        <img
+          src="{{ url_for('static', filename='logo.jpeg') }}"
+          height="80"
+          width="80"
+          alt="Logo"
+        />
+        <h1 class="ms-3">GlobeTrotters</h1>
+      </div>
+      <div class="d-flex gap-2">
+        <a href="/login" class="btn btn-outline-light">Login</a>
+        <a href="/signup" class="btn btn-outline-light">Sign Up</a>
+      </div>
+    </header>
+
+    <!-- Marquee -->
+    <div class="scroll-text">
+      <span>Plan smarter. Travel better. Explore the world your way 🌍</span>
+    </div>
+
+    <!-- Login Form -->
+    <div class="login-container">
+      <h2 class="text-center mb-4">Login</h2>
+      <form action="/login" method="post" class="d-flex flex-column gap-3">
+        <div>
+          <label for="email" class="form-label"><b>Email:</b></label>
+          <input
+            type="email"
+            class="form-control"
+            id="email"
+            placeholder="Enter Your Email"
+            name="email"
+            required
+          />
+        </div>
+        <div>
+          <label for="password" class="form-label"><b>Password:</b></label>
+          <input
+            type="password"
+            class="form-control"
+            id="password"
+            placeholder="Enter Your Password"
+            name="password"
+            required
+          />
+        </div>
+        <input type="submit" class="btn btn-success mt-2" value="Login" />
+        <a href="/forgot-password" class="btn btn-link mt-2 p-0"
+          >Forgot Password?</a
+        >
+        <a href="/signup" class="btn btn-link p-0"
+          >New user? Create an account</a
+        >
+      </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>
