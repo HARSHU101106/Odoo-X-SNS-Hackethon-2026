@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Build Itinerary</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    />
+    <style>
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Arial, sans-serif;
+        background: linear-gradient(180deg, #0b1220, #020617);
+        color: #e5e7eb;
+        min-height: 100vh;
+        padding-top: 60px;
+      }
+
+      /* NAVBAR */
+      .navbar {
+        height: 60px;
+        background: #020617;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 20px;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+      }
+
+      .navbar-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 18px;
+        font-weight: 600;
+      }
+
+      .navbar-left img {
+        height: 36px;
+        width: 36px;
+        border-radius: 8px;
+      }
+
+      .navbar-left i {
+        cursor: pointer;
+      }
+
+      .navbar-right i {
+        font-size: 24px;
+        cursor: pointer;
+      }
+
+      /* SIDEBAR */
+      .sidebar {
+        position: fixed;
+        top: 60px;
+        left: -240px;
+        width: 240px;
+        height: calc(100vh - 60px);
+        background: #020617;
+        padding: 15px;
+        transition: 0.3s;
+        z-index: 999;
+      }
+
+      .sidebar a {
+        color: #cbd5f5;
+        text-decoration: none;
+        padding: 12px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 6px;
+        transition: 0.3s;
+      }
+
+      .sidebar a:hover,
+      .sidebar a.active {
+        background: #1e293b;
+        color: #57e1ee;
+      }
+
+      /* CONTAINER */
+      .container {
+        max-width: 750px;
+        margin: 40px auto;
+        background: #020617;
+        border-radius: 16px;
+        padding: 30px;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7);
+      }
+
+      h2 {
+        text-align: center;
+        font-size: 26px;
+        margin-bottom: 30px;
+        color: #e5e7eb;
+      }
+
+      /* ITINERARY CARD */
+      .itinerary-card {
+        background: #1e293b;
+        border-radius: 14px;
+        padding: 20px;
+        margin-bottom: 15px;
+        border: 1px solid #333;
+        position: relative;
+      }
+
+      input,
+      textarea {
+        width: 100%;
+        background: #0f172a;
+        border: 1px solid #555;
+        padding: 12px;
+        border-radius: 10px;
+        color: #e5e7eb;
+        font-size: 15px;
+      }
+
+      textarea {
+        resize: none;
+        height: 90px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 6px;
+        margin-top: 12px;
+        font-size: 14px;
+        color: #94a3b8;
+      }
+
+      .date-row {
+        display: flex;
+        gap: 12px;
+        margin-top: 12px;
+      }
+
+      .date-row input {
+        flex: 1;
+      }
+
+      .add-btn,
+      .save-btn,
+      .up-btn,
+      .down-btn {
+        padding: 10px 14px;
+        border-radius: 12px;
+        border: none;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 10px;
+        margin-right: 5px;
+      }
+
+      .add-btn {
+        width: 100%;
+        background: #6366f1;
+        color: white;
+      }
+
+      .save-btn {
+        width: 100%;
+        background: #0ea5e9;
+        color: white;
+      }
+
+      .reorder-buttons {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+
+      .up-btn {
+        background: #6366f1;
+        color: white;
+      }
+
+      .down-btn {
+        background: #0ea5e9;
+        color: white;
+      }
+
+      /* SUMMARY TABLE */
+      #summaryTable {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 25px;
+        display: none;
+      }
+
+      #summaryTable th,
+      #summaryTable td {
+        border: 1px solid #555;
+        padding: 10px;
+        text-align: center;
+        color: #e5e7eb;
+      }
+
+      #summaryTable th {
+        background-color: #1e293b;
+      }
+
+      .note {
+        font-size: 13px;
+        color: #94a3b8;
+        margin-top: 8px;
+      }
+
+      /* Custom alert */
+      .custom-alert {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #e74c3c;
+        color: white;
+        padding: 15px 25px;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        font-size: 16px;
+        z-index: 1000;
+        opacity: 0;
+        transition: opacity 0.4s ease, top 0.4s ease;
+      }
+
+      .custom-alert.show {
+        opacity: 1;
+        top: 40px;
+      }
+
+      @media (max-width: 768px) {
+        .date-row {
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- NAVBAR -->
+    <div class="navbar">
+      <div class="navbar-left">
+        <i class="fa fa-bars" onclick="toggleSidebar()"></i>
+        <img src="logo.jpeg" alt="Logo" />
+        <span>GlobeTrotter</span>
+      </div>
+      <div class="navbar-right">
+        <a href="profile.html"><i class="fa fa-user-circle"></i></a>
+      </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar" id="sidebar">
+      <a href="dashboard.html"><i class="fa fa-home"></i> Dashboard</a>
+      <a href="create-trip.html"><i class="fa fa-plus"></i> Create Trips</a>
+      <a href="my-trips.html"><i class="fa fa-suitcase"></i> My Trips</a>
+      <a href="public_itineraryview.html"
+        ><i class="fa fa-route"></i> Public Itinerary</a
+      >
+      <a href="trip_calendar.html"
+        ><i class="fa fa-calendar"></i> Trip Calendar</a
+      >
+      <a href="budget.html"><i class="fa fa-wallet"></i> Budget</a>
+      <a href="login.html"><i class="fa fa-right-from-bracket"></i> Logout</a>
+    </div>
+
+    <div class="container">
+      <h2>Build Your Itinerary 🗺️</h2>
+
+      <form id="itineraryForm">
+        <div id="stopsContainer">
+          <div class="itinerary-card">
+            <label>Stop / City Name</label>
+            <input type="text" placeholder="Eg: Munnar Stay" required />
+
+            <label>Activities & Notes</label>
+            <textarea
+              placeholder="Sightseeing, hotel, local travel, food..."
+              required
+            ></textarea>
+
+            <label>Travel Dates</label>
+            <div class="date-row">
+              <input type="date" required />
+              <input type="date" required />
+            </div>
+
+            <label>Budget for this stop (₹)</label>
+            <input type="number" placeholder="Eg: 12000" required />
+
+            <div class="reorder-buttons">
+              <button type="button" class="up-btn" onclick="moveUp(this)">
+                ↑
+              </button>
+              <button type="button" class="down-btn" onclick="moveDown(this)">
+                ↓
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <button type="button" class="add-btn" onclick="addStop()">
+          + Add Another Stop
+        </button>
+        <button type="button" class="save-btn" onclick="saveItinerary()">
+          💾 Save Itinerary
+        </button>
+      </form>
+
+      <p class="note">
+        Add cities, dates, and activities to build your full trip plan. Use
+        arrows to reorder stops.
+      </p>
+
+      <!-- SUMMARY TABLE -->
+      <table id="summaryTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>City / Stop</th>
+            <th>Activities & Notes</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Budget (₹)</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div id="alertBox" class="custom-alert"></div>
+
+    <script>
+      function toggleSidebar() {
+        const sidebar = document.getElementById("sidebar");
+        sidebar.style.left = sidebar.style.left === "0px" ? "-240px" : "0px";
+      }
+
+      function addStop() {
+        const container = document.getElementById("stopsContainer");
+        const newStop = document.createElement("div");
+        newStop.className = "itinerary-card";
+        newStop.innerHTML = `
+          <label>Stop / City Name</label>
+          <input type="text" placeholder="Eg: Next Destination" required>
+          <label>Activities & Notes</label>
+          <textarea placeholder="Activities, stay, transport..." required></textarea>
+          <label>Travel Dates</label>
+          <div class="date-row">
+              <input type="date" required>
+              <input type="date" required>
+          </div>
+          <label>Budget for this stop (₹)</label>
+          <input type="number" placeholder="Eg: 8000" required>
+          <div class="reorder-buttons">
+              <button type="button" class="up-btn" onclick="moveUp(this)">↑</button>
+              <button type="button" class="down-btn" onclick="moveDown(this)">↓</button>
+          </div>
+        `;
+        container.appendChild(newStop);
+      }
+
+      function moveUp(btn) {
+        const card = btn.closest(".itinerary-card");
+        const prev = card.previousElementSibling;
+        if (prev) card.parentNode.insertBefore(card, prev);
+      }
+
+      function moveDown(btn) {
+        const card = btn.closest(".itinerary-card");
+        const next = card.nextElementSibling;
+        if (next)
+          card.parentNode.insertBefore(
+            next,
+            card.nextElementSibling.nextElementSibling
+          );
+      }
+
+      function showAlert(message) {
+        const alertBox = document.getElementById("alertBox");
+        alertBox.textContent = message;
+        alertBox.classList.add("show");
+        setTimeout(() => alertBox.classList.remove("show"), 3000);
+      }
+
+      function saveItinerary() {
+        const stops = document.querySelectorAll(".itinerary-card");
+        const tripData = [];
+        for (const stop of stops) {
+          const city = stop.querySelector('input[type="text"]').value.trim();
+          const notes = stop.querySelector("textarea").value.trim();
+          const dates = stop.querySelectorAll('input[type="date"]');
+          const budget = stop
+            .querySelector('input[type="number"]')
+            .value.trim();
+          if (
+            !city ||
+            !notes ||
+            !dates[0].value ||
+            !dates[1].value ||
+            !budget
+          ) {
+            showAlert("Please fill in all fields before saving the itinerary!");
+            return;
+          }
+          tripData.push({
+            city,
+            notes,
+            startDate: dates[0].value,
+            endDate: dates[1].value,
+            budget,
+          });
+        }
+        const table = document.getElementById("summaryTable");
+        const tbody = table.querySelector("tbody");
+        tbody.innerHTML = "";
+        tripData.forEach((stop, i) => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${i + 1}</td>
+            <td>${stop.city}</td>
+            <td>${stop.notes}</td>
+            <td>${stop.startDate}</td>
+            <td>${stop.endDate}</td>
+            <td>${stop.budget}</td>
+          `;
+          tbody.appendChild(row);
+        });
+        table.style.display = "table";
+        table.scrollIntoView({ behavior: "smooth" });
+      }
+    </script>
+  </body>
+</html>
