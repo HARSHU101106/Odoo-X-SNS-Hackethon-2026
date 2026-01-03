@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GlobeTrotter – Itinerary</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    />
+    <style>
+      body {
+        margin: 0;
+        font-family: "Segoe UI", sans-serif;
+        background: #0f172a;
+        color: #e5e7eb;
+        min-height: 100vh;
+      }
+
+      /* ===== NAVBAR ===== */
+      .navbar {
+        height: 60px;
+        background: #020617;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 20px;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        border-bottom: 1px solid #1e293b;
+      }
+
+      .navbar-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 18px;
+        font-weight: 600;
+      }
+
+      .navbar-left img {
+        height: 36px;
+        width: 36px;
+        border-radius: 8px;
+      }
+
+      .navbar-left i {
+        cursor: pointer;
+      }
+
+      .navbar-right i {
+        font-size: 24px;
+        cursor: pointer;
+      }
+
+      /* ===== SIDEBAR ===== */
+      .sidebar {
+        position: fixed;
+        top: 60px;
+        left: -240px;
+        width: 240px;
+        height: calc(100vh - 60px);
+        background: #020617;
+        padding: 15px;
+        transition: 0.3s;
+        z-index: 999;
+      }
+
+      .sidebar a {
+        color: #cbd5f5;
+        text-decoration: none;
+        padding: 12px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 6px;
+        transition: 0.3s;
+      }
+
+      .sidebar a:hover,
+      .sidebar a.active {
+        background: #1e293b;
+        color: #57e1ee;
+      }
+
+      /* ===== MAIN CONTENT ===== */
+      .container {
+        max-width: 1200px;
+        margin: 100px auto 40px;
+        padding: 25px;
+        border-radius: 16px;
+        border: 1px solid #444;
+        background: #020617;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
+      }
+
+      /* CONTROLS */
+      .controls {
+        display: grid;
+        grid-template-columns: 1fr auto auto auto;
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+
+      .controls input,
+      .controls select,
+      .controls button {
+        background: #111;
+        border: 1px solid #555;
+        color: #fff;
+        padding: 10px 14px;
+        border-radius: 10px;
+      }
+
+      .controls button {
+        cursor: pointer;
+        background: #6366f1;
+        border: none;
+      }
+
+      .controls button:hover {
+        background: #4f46e5;
+      }
+
+      /* TITLE */
+      .title {
+        text-align: center;
+        font-size: 26px;
+        margin-bottom: 25px;
+        font-weight: bold;
+        color: #ffffff;
+      }
+
+      /* TABLE HEADER */
+      .table-header {
+        display: grid;
+        grid-template-columns: 2fr 1fr auto;
+        font-weight: bold;
+        border-bottom: 1px solid #555;
+        padding-bottom: 10px;
+        margin-bottom: 12px;
+        color: #93c5fd;
+      }
+
+      /* DAY */
+      .day {
+        border: 1px solid #444;
+        border-radius: 14px;
+        padding: 15px;
+        margin-bottom: 25px;
+        background: #111;
+      }
+
+      .day-title {
+        font-weight: bold;
+        font-size: 18px;
+        margin-bottom: 10px;
+        color: #e5e7eb;
+      }
+
+      /* ACTIVITY */
+      .activity {
+        display: grid;
+        grid-template-columns: 2fr 1fr auto;
+        gap: 10px;
+        margin-bottom: 8px;
+        align-items: center;
+      }
+
+      .activity input {
+        background: #0b0b0b;
+        border: 1px solid #555;
+        border-radius: 10px;
+        padding: 8px 10px;
+        color: #fff;
+      }
+
+      /* BUTTONS */
+      button {
+        background: #27ae60;
+        border: none;
+        padding: 8px 14px;
+        border-radius: 10px;
+        color: white;
+      }
+
+      .remove-btn {
+        background: #f43f5e;
+      }
+
+      .group-title {
+        margin: 14px 0 8px;
+        font-weight: bold;
+        color: #a5b4fc;
+      }
+
+      .day-total,
+      .overall-total {
+        text-align: right;
+        font-weight: bold;
+      }
+
+      /* ALERT */
+      .alert-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.6);
+        display: none;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .alert-box {
+        background: #111;
+        border: 1px solid #555;
+        border-radius: 14px;
+        padding: 25px;
+        width: 320px;
+        text-align: center;
+      }
+
+      @media (max-width: 768px) {
+        .controls {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- NAVBAR -->
+    <div class="navbar">
+      <div class="navbar-left">
+        <i class="fa fa-bars" onclick="toggleSidebar()"></i>
+        <img src="logo.jpeg" alt="Logo" />
+        <span>GlobeTrotter</span>
+      </div>
+      <div class="navbar-right">
+        <a href="profile.html"><i class="fa fa-user-circle"></i></a>
+      </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar" id="sidebar">
+      <a href="dashboard.html"><i class="fa fa-home"></i> Dashboard</a>
+      <a href="create-trip.html"><i class="fa fa-plus"></i> Create Trips</a>
+      <a href="my-trips.html"><i class="fa fa-suitcase"></i> My Trips</a>
+      <a href="public_itineraryview.html"
+        ><i class="fa fa-route"></i> public Itinerary
+      </a>
+      <a href="trip_calendar.html"
+        ><i class="fa fa-calendar"></i> Trip Calendar</a
+      >
+      <a href="budget.html"><i class="fa fa-wallet"></i> Budget</a>
+      <a href="login.html"><i class="fa fa-right-from-bracket"></i> Logout</a>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="container">
+      <div class="controls">
+        <input
+          type="text"
+          placeholder="Search activity..."
+          oninput="searchActivities(this.value)"
+        />
+        <select onchange="groupByExpense(this.value)">
+          <option value="">Group</option>
+          <option value="expense">Group by Expense</option>
+        </select>
+        <select onchange="sortExpenses(this.value)">
+          <option value="">Sort</option>
+          <option value="low">Low → High</option>
+          <option value="high">High → Low</option>
+        </select>
+        <button onclick="addDay()">+ Add Day</button>
+      </div>
+
+      <div class="title">Itinerary – Selected Place</div>
+
+      <div class="table-header">
+        <div>Activity</div>
+        <div>Expense (₹)</div>
+        <div>Action</div>
+      </div>
+
+      <div id="days"></div>
+
+      <div class="overall-total">
+        Overall Total: ₹<span id="overall">0</span>
+      </div>
+    </div>
+
+    <!-- ALERT -->
+    <div class="alert-overlay" id="alert">
+      <div class="alert-box">
+        <h3>Action Required</h3>
+        <p id="alertMsg"></p>
+        <button onclick="closeAlert()">OK</button>
+      </div>
+    </div>
+
+    <script>
+      const sidebar = document.getElementById("sidebar");
+      function toggleSidebar() {
+        sidebar.style.left = sidebar.style.left === "0px" ? "-240px" : "0px";
+      }
+
+      let dayCount = 0;
+
+      function showAlert(msg) {
+        document.getElementById("alertMsg").textContent = msg;
+        document.getElementById("alert").style.display = "flex";
+      }
+      function closeAlert() {
+        document.getElementById("alert").style.display = "none";
+      }
+
+      function addDay() {
+        dayCount++;
+        const day = document.createElement("div");
+        day.className = "day";
+        day.id = `day${dayCount}`;
+        day.innerHTML = `
+          <div class="day-title">Day ${dayCount}</div>
+          <div class="list"></div>
+          <button onclick="addActivity('${day.id}')">+ Add Activity</button>
+          <div class="day-total">Total: ₹<span>0</span></div>
+        `;
+        document.getElementById("days").appendChild(day);
+        addActivity(day.id);
+      }
+
+      function addActivity(dayId) {
+        const list = document.querySelector(`#${dayId} .list`);
+        const last = list.lastElementChild;
+        if (last && (!last.children[0].value || !last.children[1].value)) {
+          showAlert("Fill previous activity before adding new.");
+          return;
+        }
+        const row = document.createElement("div");
+        row.className = "activity";
+        row.innerHTML = `
+          <input type="text" placeholder="Activity">
+          <input type="number" min="0" oninput="updateTotals()">
+          <button class="remove-btn" onclick="removeActivity(this)">✕</button>
+        `;
+        list.appendChild(row);
+      }
+
+      function removeActivity(btn) {
+        btn.parentElement.remove();
+        updateTotals();
+      }
+
+      function updateTotals() {
+        let overallTotal = 0;
+        document.querySelectorAll(".day").forEach((day) => {
+          let dayTotal = 0;
+          day
+            .querySelectorAll("input[type='number']")
+            .forEach((i) => (dayTotal += Number(i.value) || 0));
+          day.querySelector(".day-total span").textContent = dayTotal;
+          overallTotal += dayTotal;
+        });
+        document.getElementById("overall").textContent = overallTotal;
+      }
+
+      function sortExpenses(order) {
+        if (!order) return;
+        document.querySelectorAll(".list").forEach((list) => {
+          [...list.querySelectorAll(".activity")]
+            .sort((a, b) =>
+              order === "low"
+                ? a.children[1].value - b.children[1].value
+                : b.children[1].value - a.children[1].value
+            )
+            .forEach((i) => list.appendChild(i));
+        });
+      }
+
+      function groupByExpense(type) {
+        if (!type) return;
+
+        document.querySelectorAll(".day").forEach((day) => {
+          const list = day.querySelector(".list");
+          const items = [...list.querySelectorAll(".activity")];
+          if (!items.length) return;
+
+          for (let i of items) {
+            if (!i.children[1].value) {
+              showAlert("Enter expense for all activities.");
+              return;
+            }
+          }
+
+          list.innerHTML = "";
+
+          const low = [],
+            mid = [],
+            high = [];
+          items.forEach((i) => {
+            const v = Number(i.children[1].value);
+            if (v <= 1000) low.push(i);
+            else if (v <= 3000) mid.push(i);
+            else high.push(i);
+          });
+
+          if (low.length) {
+            list.innerHTML += `<div class="group-title">Low Cost</div>`;
+            low.forEach((i) => list.appendChild(i));
+          }
+          if (mid.length) {
+            list.innerHTML += `<div class="group-title">Medium Cost</div>`;
+            mid.forEach((i) => list.appendChild(i));
+          }
+          if (high.length) {
+            list.innerHTML += `<div class="group-title">High Cost</div>`;
+            high.forEach((i) => list.appendChild(i));
+          }
+        });
+      }
+
+      function searchActivities(text) {
+        document.querySelectorAll(".activity").forEach((a) => {
+          a.style.display = a.children[0].value
+            .toLowerCase()
+            .includes(text.toLowerCase())
+            ? ""
+            : "none";
+        });
+      }
+
+      // INIT
+      addDay();
+      addDay();
+    </script>
+  </body>
+</html>
